@@ -1,3 +1,5 @@
+// web-sdk/discord-sck.js
+
 export class DiscordSCK {
   constructor({ clientId, api }) {
     this.clientId = clientId;
@@ -5,44 +7,41 @@ export class DiscordSCK {
   }
 
   async login() {
-    const REDIRECT_URI = encodeURIComponent("https://cidler6901-alt.github.io/discord-SDK/web-sdk/");
+    const REDIRECT_URI = encodeURIComponent(
+      "https://cidler6901-alt.github.io/discord-SDK/web-sdk/"
+    );
     const SCOPE = "identify";
     const RESPONSE_TYPE = "code";
 
-    const url = `https://discord.com/api/oauth2/authorize?client_id=${this.clientId}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
+    const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${this.clientId}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
 
-    const popup = window.open(url, "Discord Login", "width=500,height=700");
-    if (!popup) return alert("Enable popups for login!");
+    // Open popup
+    const popup = window.open(oauthUrl, "Discord Login", "width=500,height=700");
+    if (!popup) return alert("Please allow popups to login with Discord");
 
     return new Promise((resolve, reject) => {
-      const interval = setInterval(async () => {
+      const messageHandler = async (event) => {
+        // Only accept messages from your frontend page
+        if (event.origin !== "https://cidler6901-alt.github.io") return;
+        window.removeEventListener("message", messageHandler);
+
+        const code = event.data?.code;
+        if (!code) return reject("No code received");
+
         try {
-          if (!popup || popup.closed) {
-            clearInterval(interval);
-            reject("Popup closed");
-            return;
-          }
-
-          const popupUrl = popup.location.href;
-          if (popupUrl.includes("?code=")) {
-            const code = new URL(popupUrl).searchParams.get("code");
-            popup.close();
-            clearInterval(interval);
-
-            // Send code to API
-            const res = await fetch(`${this.api}/link-oauth`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ code }),
-            });
-
-            const user = await res.json();
-            resolve(user);
-          }
+          const res = await fetch(`${this.api}/link-oauth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+          });
+          const user = await res.json();
+          resolve(user);
         } catch (err) {
-          // Cross-origin errors while waiting for Discord redirect
+          reject(err);
         }
-      }, 500);
+      };
+
+      window.addEventListener("message", messageHandler);
     });
   }
 }
