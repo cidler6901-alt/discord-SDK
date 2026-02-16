@@ -1,20 +1,34 @@
-class DiscordSCK {
-  constructor(config){
-    this.clientId = config.clientId;
-    this.api = config.api;
-  }
+<script>
+async function handleOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
 
-  login(){
-    const redirect = encodeURIComponent(window.location.href);
-    window.location.href =
-      `https://discord.com/api/oauth2/authorize?client_id=${this.clientId}` +
-      `&redirect_uri=https://cidler6901-alt.github.io/discord-SDK/web-sdk/&response_type=code&scope=identify`;
-  }
+  if (!code) return;
 
-  async getProfile(discordId){
-    const res = await fetch(`${this.api}/users/${discordId}`);
-    return res.json();
+  try {
+    // Send code to your API to exchange for token & user info
+    const res = await fetch(
+      "https://YOUR_API_URL/link-oauth", // Replace with your API endpoint
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      }
+    );
+
+    const data = await res.json();
+    console.log("Logged in user:", data);
+
+    // Update page for logged-in user
+    document.getElementById("login-btn").style.display = "none";
+    document.getElementById("user-info").textContent =
+      `Hello, ${data.username}#${data.discriminator}`;
+
+  } catch (err) {
+    console.error("OAuth failed", err);
   }
 }
 
-window.DiscordSCK = DiscordSCK;
+// Run on page load
+handleOAuthCallback();
+</script>
