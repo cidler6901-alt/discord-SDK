@@ -7,7 +7,7 @@ export class DiscordSCK {
   }
 
   async login() {
-    const REDIRECT_URI = `${window.location.origin}/redirect.html`; // temporary redirect page
+    const REDIRECT_URI = `https://cidler6901-alt.github.io/discord-SDK/web-sdk/redirect.html`; // temporary redirect page
     const SCOPE = "identify";
     const RESPONSE_TYPE = "code";
 
