@@ -1,34 +1,46 @@
-<script>
-async function handleOAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
+import express from "express";
+import fetch from "node-fetch"; // Needed to call Discord API
 
-  if (!code) return;
+const app = express();
+app.use(express.json());
+
+app.post("/link-oauth", async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: "No code provided" });
 
   try {
-    // Send code to your API to exchange for token & user info
-    const res = await fetch(
-      "https://discord-sdk.onrender.com/link-oauth", // Replace with your API endpoint
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
-      }
-    );
+    // Exchange code for access token
+    const params = new URLSearchParams({
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: process.env.REDIRECT_URI,
+      scope: "identify"
+    });
 
-    const data = await res.json();
-    console.log("Logged in user:", data);
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      body: params,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" }
+    });
 
-    // Update page for logged-in user
-    document.getElementById("login-btn").style.display = "none";
-    document.getElementById("user-info").textContent =
-      `Hello, ${data.username}#${data.discriminator}`;
+    const tokenData = await tokenRes.json();
 
+    // Fetch user info
+    const userRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    });
+
+    const userData = await userRes.json();
+
+    res.json(userData);
   } catch (err) {
-    console.error("OAuth failed", err);
+    console.error(err);
+    res.status(500).json({ error: "Failed to link OAuth" });
   }
-}
+});
 
-// Run on page load
-handleOAuthCallback();
-</script>
+const PORT = process.env.PORT || 8000;
+app.get("/", (req, res) => res.send("discord-SCK bot running"));
+app.listen(PORT, () => console.log("Bot HTTP dummy server on", PORT));
