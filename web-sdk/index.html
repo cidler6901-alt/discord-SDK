@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>discord-SCK login13</title>
+  <title>discord-SCK testing14</title>
 </head>
 <body>
 
 <h1>discord-SCK</h1>
+
 <button id="loginBtn">Login with Discord</button>
 
 <div id="output"></div>
 
-<script type="module" src="discord-sck.js"></script>
 <script type="module">
-  import { DiscordSCK } from './discord-sck.js';
+import { loginWithDiscord } from "./discord-sck.js";
 
-  const sdk = new DiscordSCK({
-    clientId: "1471857321696166072",
-    api: "https://discord-sdk.onrender.com"
-  });
+const sdk = { login: loginWithDiscord };
 
-  document.getElementById("loginBtn").onclick = async () => {
-    try {
-      const user = await sdk.login();
-      document.getElementById("output").textContent = `Logged in as ${user.username}#${user.discriminator}`;
-    } catch (err) {
-      console.error(err);
-      document.getElementById("output").textContent = `Discord login failed: ${err}`;
-    }
-  };
+document.getElementById("loginBtn").onclick = async () => {
+  const output = document.getElementById("output");
+  output.textContent = "Logging in...";
+  
+  try {
+    const user = await sdk.login();
+    output.innerHTML = `
+      <p>Logged in as: <strong>${user.username}#${user.discriminator}</strong></p>
+      <p>ID: ${user.id}</p>
+    `;
+  } catch (err) {
+    console.error(err);
+    output.textContent = "Discord login failed";
+  }
+};
 </script>
 
 </body>
