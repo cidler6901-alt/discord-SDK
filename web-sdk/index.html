@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>discord-SCK Demo</title>
+</head>
+<body>
+
+<h1>discord-SCK</h1>
+
+<button id="loginBtn">Login with Discord</button>
+
+<div id="output"></div>
+
+<script src="./discord-sck.js"></script>
+<script>
+const sdk = new DiscordSCK({
+  clientId: "YOUR_CLIENT_ID",
+  api: "https://your-api.onrender.com"
+});
+
+document.getElementById("loginBtn").onclick = () => sdk.login();
+</script>
+
+</body>
+</html>
