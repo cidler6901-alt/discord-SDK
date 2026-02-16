@@ -5,7 +5,7 @@ export class DiscordSCK {
   }
 
   async login() {
-    const REDIRECT_URI = encodeURIComponent(window.location.href);
+    const REDIRECT_URI = encodeURIComponent("https://cidler6901-alt.github.io/discord-SDK/web-sdk/");
     const SCOPE = "identify";
     const RESPONSE_TYPE = "code";
 
