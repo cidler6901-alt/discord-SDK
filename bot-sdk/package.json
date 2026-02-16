@@ -1,13 +1,16 @@
 {
   "name": "discord-sck-bot",
   "version": "1.0.0",
+  "description": "discord-SCK bot backend",
   "main": "bot.js",
+  "type": "module",
   "scripts": {
     "start": "node bot.js"
   },
-    "dependencies": {
-    "discord.js": "^14.15.1",
+  "dependencies": {
+    "discord.js": "^14.12.1",
     "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
     "dotenv": "^16.3.1"
   }
 }
