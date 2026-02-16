@@ -8,7 +8,7 @@ async function handleOAuthCallback() {
   try {
     // Send code to your API to exchange for token & user info
     const res = await fetch(
-      "https://YOUR_API_URL/link-oauth", // Replace with your API endpoint
+      "https://discord-sdk.onrender.com/link-oauth", // Replace with your API endpoint
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
