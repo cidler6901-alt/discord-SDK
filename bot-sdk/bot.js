@@ -25,7 +25,11 @@ client.login(process.env.BOT_TOKEN);
 
 /* ---- Dummy server for Render ---- */
 
-const PORT = process.env.PORT || 800;
+import express from "express"; // <-- add this
+
+/* ---- Dummy server for Render ---- */
+const app = express();  // <-- create the app
+const PORT = process.env.PORT || 8000;
 
 app.get("/", (req, res) => {
   res.send("discord-SCK bot running");
