@@ -24,7 +24,7 @@ client.on("interactionCreate", async (interaction) => {
 client.login(process.env.BOT_TOKEN);
 
 /* ---- Dummy server for Render ---- */
-const app = express();
+
 const PORT = process.env.PORT || 800;
 
 app.get("/", (req, res) => {
