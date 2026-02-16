@@ -12,14 +12,28 @@
 <div id="output"></div>
 
 <script src="web-sdk/discord-sck.js"></script>
-<script>
+<button id="loginBtn">Login with Discord</button>
+
+<script type="module" src="web-sdk/discord-sck.js"></script>
+<script type="module">
+import { DiscordSCK } from "./web-sdk/discord-sck.js";
+
 const sdk = new DiscordSCK({
   clientId: "1471857321696166072",
   api: "https://discord-sdk.onrender.com"
 });
 
 document.getElementById("loginBtn").onclick = () => sdk.login();
+
+// Optional: check if redirected from Discord
+window.addEventListener("load", async () => {
+  const user = await sdk.handleRedirect();
+  if (user) {
+    alert(`Logged in as ${user.username}#${user.discriminator}`);
+  }
+});
 </script>
+
 
 </body>
 </html>
