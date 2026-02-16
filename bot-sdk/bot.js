@@ -1,4 +1,5 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+import { Client, GatewayIntentBits } from "discord.js";
+import express from "express";
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds]
@@ -21,3 +22,15 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(process.env.BOT_TOKEN);
+
+/* ---- Dummy server for Render ---- */
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+app.get("/", (req, res) => {
+  res.send("discord-SCK bot running");
+});
+
+app.listen(PORT, () => {
+  console.log("Bot HTTP dummy server on", PORT);
+});
