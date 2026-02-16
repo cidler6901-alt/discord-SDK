@@ -1,46 +1,70 @@
-import express from "express";
-import fetch from "node-fetch"; // Needed to call Discord API
+// web-sdk/discord-sck.js
 
-const app = express();
-app.use(express.json());
+const BOT_API_URL = "https://discord-sdk.onrender.com"; // Your bot's Render URL
 
-app.post("/link-oauth", async (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ error: "No code provided" });
+/**
+ * Open Discord OAuth2 login popup and get user info
+ */
+export async function loginWithDiscord() {
+  // 1️⃣ Open Discord OAuth2 window
+  const CLIENT_ID = "1471857321696166072"; // replace with your Discord App client ID
+  const REDIRECT_URI = encodeURIComponent(window.location.href); // current page
+  const SCOPE = "identify";
+  const RESPONSE_TYPE = "code";
 
-  try {
-    // Exchange code for access token
-    const params = new URLSearchParams({
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: process.env.REDIRECT_URI,
-      scope: "identify"
-    });
+  const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
 
-    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
-      method: "POST",
-      body: params,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    });
+  // Open in new window for login
+  const popup = window.open(oauthUrl, "Discord Login", "width=500,height=700");
 
-    const tokenData = await tokenRes.json();
+  if (!popup) return alert("Please allow popups to login with Discord");
 
-    // Fetch user info
-    const userRes = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` }
-    });
+  // 2️⃣ Wait for redirect with code
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      try {
+        if (!popup || popup.closed) {
+          clearInterval(interval);
+          reject("Login popup closed");
+          return;
+        }
 
-    const userData = await userRes.json();
+        const url = popup.location.href;
+        if (url.includes("?code=")) {
+          const code = new URL(url).searchParams.get("code");
+          popup.close();
+          clearInterval(interval);
 
-    res.json(userData);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to link OAuth" });
-  }
-});
+          // 3️⃣ Send code to bot API
+          fetch(`${BOT_API_URL}/link-oauth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+          })
+            .then(res => res.json())
+            .then(user => resolve(user))
+            .catch(err => reject(err));
+        }
+      } catch (e) {
+        // Cross-origin until Discord redirects back to your page
+      }
+    }, 500);
+  });
+}
 
-const PORT = process.env.PORT || 8000;
-app.get("/", (req, res) => res.send("discord-SCK bot running"));
-app.listen(PORT, () => console.log("Bot HTTP dummy server on", PORT));
+/**
+ * Example usage:
+ * 
+ * import { loginWithDiscord } from "./discord-sck.js";
+ * 
+ * document.getElementById("discord-login-btn").addEventListener("click", async () => {
+ *   try {
+ *     const user = await loginWithDiscord();
+ *     console.log("Logged in user:", user);
+ *     alert(`Hello ${user.username}#${user.discriminator}`);
+ *   } catch (err) {
+ *     console.error(err);
+ *     alert("Discord login failed");
+ *   }
+ * });
+ */
