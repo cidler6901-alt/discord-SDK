@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Discord Redirect</title>
-    <script>
-  // If URL contains ?code=, send it back to opener
+<head>
+  <title>Discord Redirect</title>
+</head>
+<body>
+<script>
+  // Get the "code" from URL
   const params = new URLSearchParams(window.location.search);
   const code = params.get("code");
+
   if (code && window.opener) {
-    window.opener.postMessage({ code }, "https://cidler6901-alt.github.io");
-    window.close();
+    // Send the code back to the main window
+    window.opener.postMessage({ type: "discord-code", code }, "*");
+    window.close(); // close the popup
+  } else {
+    document.body.innerHTML = "<h3>Login failed or no code received</h3>";
   }
 </script>
-
-    <script>
-      // Just close the popup and let the SDK handle code extraction
-      window.onload = () => {
-        window.opener && window.opener.postMessage({ url: window.location.href }, "*");
-      };
-    </script>
-  </head>
-  <body>
-    Redirecting...
-  </body>
+</body>
 </html>
