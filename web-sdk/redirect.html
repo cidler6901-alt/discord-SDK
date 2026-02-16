@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Discord Redirect</title>
+    <script>
+      // Just close the popup and let the SDK handle code extraction
+      window.onload = () => {
+        window.opener && window.opener.postMessage({ url: window.location.href }, "*");
+      };
+    </script>
+  </head>
+  <body>
+    Redirecting...
+  </body>
+</html>
