@@ -1,69 +1,54 @@
-// bot-sdk/bot.js
 import express from "express";
 import fetch from "node-fetch";
+import dotenv from "dotenv";
 import { Client, GatewayIntentBits } from "discord.js";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 8000;
-
-client.once("ready", () => {
-  console.log("discord-SCK bot online");
-});
-
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  if (interaction.commandName === "profile") {
-    interaction.reply("discord-SCK profile system online ✅");
-  }
-
-  if (interaction.commandName === "link") {
-    interaction.reply("Account linking coming soon 🔗");
-  }
-});
-
-client.login(process.env.BOT_TOKEN);
-
-// Middleware
 app.use(express.json());
 
-// OAuth endpoint
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+client.once("ready", () => console.log("discord-SCK bot online"));
+client.login(process.env.BOT_TOKEN);
+
+// ---- Discord OAuth2 Endpoint ----
 app.post("/link-oauth", async (req, res) => {
   const { code } = req.body;
   if (!code) return res.status(400).json({ error: "Missing code" });
 
   try {
-    // Exchange code for token
-    const params = new URLSearchParams({
+    // Exchange code for access token
+    const data = new URLSearchParams({
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
       grant_type: "authorization_code",
       code,
-      redirect_uri: "https://discord-sdk.onrender.com/link-oauth",
-      scope: "identify",
+      redirect_uri: "https://cidler6901-alt.github.io/discord-SDK/web-sdk/",
+      scope: "identify"
     });
 
     const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params
+      body: data
     });
 
-    const tokenData = await tokenRes.json();
+    const tokenJson = await tokenRes.json();
+    if (!tokenJson.access_token) return res.status(400).json({ error: "Invalid code" });
+
+    // Fetch user info
     const userRes = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+      headers: { Authorization: `Bearer ${tokenJson.access_token}` }
     });
-    const userData = await userRes.json();
 
-    res.json(userData);
+    const user = await userRes.json();
+    res.json(user); // send user info back to frontend
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "OAuth failed" });
+    res.status(500).json({ error: "Failed to link Discord account" });
   }
 });
 
-// Dummy endpoint for Render
-app.get("/", (_, res) => res.send("discord-SCK bot running"));
-
-app.listen(PORT, () => console.log(`Bot HTTP server on port ${PORT}`));
+// ---- Dummy HTTP server for Render ----
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log("Bot API running on port", PORT));
