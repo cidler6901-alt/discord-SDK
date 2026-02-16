@@ -8,7 +8,7 @@ class DiscordSCK {
     const redirect = encodeURIComponent(window.location.href);
     window.location.href =
       `https://discord.com/api/oauth2/authorize?client_id=${this.clientId}` +
-      `&redirect_uri=${redirect}&response_type=code&scope=identify`;
+      `&redirect_uri=https://cidler6901-alt.github.io/discord-SDK/web-sdk/&response_type=code&scope=identify`;
   }
 
   async getProfile(discordId){
