@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>discord-SCK testing4</title>
+  <title>discord-SCK testing5</title>
 </head>
 <body>
 
 <h1>discord-SCK</h1>
-
-
+<button id="loginBtn">Login with Discord</button>
 
 <div id="output"></div>
 
-<script src="web-sdk/discord-sck.js"></script>
-<button id="loginBtn">Login with Discord2</button>
-
-<script type="module" src="web-sdk/discord-sck.js"></script>
 <script type="module">
 import { DiscordSCK } from "./web-sdk/discord-sck.js";
 
@@ -25,15 +20,19 @@ const sdk = new DiscordSCK({
 
 document.getElementById("loginBtn").onclick = () => sdk.login();
 
-// Optional: check if redirected from Discord
+// Optional: handle redirect after OAuth
 window.addEventListener("load", async () => {
-  const user = await sdk.handleRedirect();
-  if (user) {
-    alert(`Logged in as ${user.username}#${user.discriminator}`);
+  try {
+    const user = await sdk.handleRedirect();
+    if (user) {
+      document.getElementById("output").innerText =
+        `Logged in as ${user.username}#${user.discriminator}`;
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 </script>
-
 
 </body>
 </html>
