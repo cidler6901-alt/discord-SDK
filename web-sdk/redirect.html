@@ -3,6 +3,16 @@
   <head>
     <title>Discord Redirect</title>
     <script>
+  // If URL contains ?code=, send it back to opener
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  if (code && window.opener) {
+    window.opener.postMessage({ code }, "https://cidler6901-alt.github.io");
+    window.close();
+  }
+</script>
+
+    <script>
       // Just close the popup and let the SDK handle code extraction
       window.onload = () => {
         window.opener && window.opener.postMessage({ url: window.location.href }, "*");
