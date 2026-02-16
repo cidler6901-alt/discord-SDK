@@ -1,41 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>discord-SCK Login11</title>
+  <meta charset="UTF-8">
+  <title>discord-SCK login12</title>
 </head>
 <body>
-  <h1>discord-SCK</h1>
-  <button id="loginBtn">Login with Discord</button>
-  <pre id="output"></pre>
 
-  <script type="module" src="discord-sck.js"></script>
-  <script type="module">
-    import { DiscordSCK } from "./discord-sck.js";
+<h1>discord-SCK</h1>
+<button id="loginBtn">Login with Discord</button>
 
-    const sdk = new DiscordSCK({
-      clientId: "1471857321696166072",
-      api: "https://discord-sdk.onrender.com"
-    });
+<div id="output"></div>
 
-    const output = document.getElementById("output");
+<script type="module" src="discord-sck.js"></script>
+<script type="module">
+  import { DiscordSCK } from './discord-sck.js';
 
-    document.getElementById("loginBtn").onclick = async () => {
-      try {
-        const user = await sdk.login();
-        output.textContent = JSON.stringify(user, null, 2);
-      } catch (err) {
-        output.textContent = "Discord login failed:\n" + err;
-      }
-    };
-  </script>
-  <script>
-  // If URL contains ?code=, send it back to opener
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  if (code && window.opener) {
-    window.opener.postMessage({ code }, "https://cidler6901-alt.github.io");
-    window.close();
-  }
+  const sdk = new DiscordSCK({
+    clientId: "1471857321696166072",
+    api: "https://discord-sdk.onrender.com"
+  });
+
+  document.getElementById("loginBtn").onclick = async () => {
+    try {
+      const user = await sdk.login();
+      document.getElementById("output").textContent = `Logged in as ${user.username}#${user.discriminator}`;
+    } catch (err) {
+      console.error(err);
+      document.getElementById("output").textContent = `Discord login failed: ${err}`;
+    }
+  };
 </script>
 
 </body>
